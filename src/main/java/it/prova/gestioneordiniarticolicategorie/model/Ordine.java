@@ -1,5 +1,6 @@
 package it.prova.gestioneordiniarticolicategorie.model;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +16,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ordine")
-public class Odine {
+public class Ordine {
 //Ordine (id, nomeDestinatario, indirizzoSpedizione, dataSpedizione, dataScadenza, articoli)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +33,11 @@ public class Odine {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "ordine")
 	private Set<Articolo> articolos = new HashSet<Articolo>();
 
-	public Odine() {
+	public Ordine() {
 		super();
 	}
 
-	public Odine(String nomeDestinatario, String indirizzoSpedizione, Date dataSpedizione, Date dataScadenza) {
+	public Ordine(String nomeDestinatario, String indirizzoSpedizione, Date dataSpedizione, Date dataScadenza) {
 		super();
 		this.nomeDestinatario = nomeDestinatario;
 		this.indirizzoSpedizione = indirizzoSpedizione;
@@ -92,4 +93,21 @@ public class Odine {
 		this.articolos = articolos;
 	}
 
+	public static void addLink(Articolo articolo, Ordine ordine) {
+		ordine.setArticolos(new HashSet<>(Arrays.asList(articolo)));
+		articolo.setOrdine(ordine);
+		if (ordine.getArticolos().isEmpty() || articolo.getOrdine()==null) {
+			throw new RuntimeException(" accoppiamento fallito");
+		}
+	}
+
+
+	public static void removeLink(Articolo articolo,Ordine ordine) {
+		ordine.getArticolos().remove(articolo);
+		articolo.setOrdine(null);
+		if (!(ordine.getArticolos().isEmpty()||articolo.getOrdine()==null)) {
+			throw new RuntimeException("disaccoppiamento fallito");
+		}
+	}
+	
 }
